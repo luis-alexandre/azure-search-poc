@@ -1,0 +1,337 @@
+﻿@page
+@using AzureSearch.UI.Model;
+@using Newtonsoft.Json;
+@model AzureSearch.UI.Pages.FileMetadataModel
+@{
+    string link = $"https://stglangleypoc.blob.core.windows.net/pdf-documents/{Model.FileMetadataDetails.Name}";
+}
+
+<div class="mb-3 row">
+   <label class="col-sm-2 col-form-label fw-bold">File Content Type:</label>
+    <div class="col-sm-10">
+        @if (@Model.FileMetadataDetails.ContentType != null)
+        {
+            <p>@Model.FileMetadataDetails.ContentType</p>
+        }
+    </div>
+</div>
+
+<div class="mb-3 row">
+    <label class="col-sm-2 col-form-label fw-bold">File Size:</label>
+    <div class="col-sm-10">
+        <p>@Model.FileMetadataDetails.Size</p>
+    </div>
+</div>
+
+<div class="mb-3 row">
+    <label class="col-sm-2 col-form-label fw-bold">File Name:</label>
+    <div class="col-sm-10">
+        @if (@Model.FileMetadataDetails.Name != null)
+        {
+            <p><a href="@link">@Model.FileMetadataDetails.Name</a></p>
+        }
+    </div>
+</div>
+
+<div class="mb-3 row">
+    <label class="col-sm-2 col-form-label fw-bold">Created At:</label>
+    <div class="col-sm-10">
+        @if (@Model.FileMetadataDetails.CreationDate != null)
+        {
+            <p>@Model.FileMetadataDetails.CreationDate.Value.ToShortDateString()</p>
+        }
+    </div>
+</div>
+
+<div class="mb-3 row">
+    <label class="col-sm-2 col-form-label fw-bold">File Path:</label>
+    <div class="col-sm-10">
+        @if (@Model.FileMetadataDetails.Path != null)
+        {
+            <p>@Model.FileMetadataDetails.Path</p>
+        }
+    </div>
+</div>
+
+<div class="mb-3 row">
+    <label class="col-sm-2 col-form-label fw-bold">Content:</label>
+    <div class="col-sm-10">
+        @if (Model.FileMetadataDetails.Text != null && Model.FileMetadataDetails.Text.Count > 0)
+        {
+            @foreach (var item in Model.FileMetadataDetails.Text)
+            {
+                <p>@item</p>
+            }
+        }
+    </div>
+</div>
+
+<div class="mb-3 row">
+    <div class="accordion" id="accordionImageProjection">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#imageprojection" aria-expanded="true" aria-controls=imageprojection>
+                    Image Projection:
+                </button>
+            </h2>
+            <div id=imageprojection class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionImageProjection">
+                <div class="accordion-body">
+                    @if (Model.FileMetadataDetails.Path != null)
+                    {
+                        var fullPath = $"https://stglangleypoc.blob.core.windows.net/azureblob-skillset-v2-image-projection/{Model.FileMetadataDetails.Path}/normalized_images_0.jpg";
+                        <img src="@fullPath" width="80%" height="80%"></img>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@{
+    var imageCaptions = Model.FileMetadataDetails.ImageCaptions ?? new List<string>();
+}
+
+
+<div class="mb-3 row">
+
+    <div class="accordion" id="accordionImageCaption">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#imageCaption" aria-expanded="true" aria-controls=imageCaption>
+                    Image Caption:
+                </button>
+            </h2>
+            <div id=imageCaption class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionImageCaption">
+                <div class="accordion-body">
+                    <ul class="list-group">
+
+                        @foreach (var item in imageCaptions)
+                        {
+                            <li class="list-group-item">
+                                @item
+                            </li>
+                        }
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="mb-3 row">
+
+    <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#imageTags" aria-expanded="true" aria-controls=imageTags>
+                    Image Tags:
+                </button>
+            </h2>
+            <div id=imageTags class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <ul class="list-group">
+                        @if (Model.FileMetadataDetails.ImageTags != null && Model.FileMetadataDetails.ImageTags.Count > 0)
+                        {
+                            @foreach (var item in Model.FileMetadataDetails.ImageTags)
+                            {
+                                <li class="list-group-item">
+                                    @item
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="mb-3 row">
+    <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#layouttext" aria-expanded="true" aria-controls=layouttext>
+                    Layout Text:
+                </button>
+            </h2>
+            <div id=layouttext class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#layouttext">
+                <div class="accordion-body">
+                    @if (Model.FileMetadataDetails.LayoutText != null && Model.FileMetadataDetails.LayoutText.Count > 0)
+                    {
+                        @foreach (var item in Model.FileMetadataDetails.LayoutText)
+                        {
+                            var indentedItem = JsonConvert.SerializeObject(item, Formatting.Indented);
+
+                            <p>@indentedItem</p>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mb-3 row">
+    <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#people" aria-expanded="true" aria-controls=people>
+                    People:
+                </button>
+            </h2>
+            <div id=people class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <ul class="list-group">
+                        @if (Model.FileMetadataDetails.People != null && Model.FileMetadataDetails.People.Count > 0)
+                        {
+                            @foreach (var item in Model.FileMetadataDetails.People)
+                            {
+                                <li class="list-group-item">
+                                    @item
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mb-3 row">
+    <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#organizations" aria-expanded="true" aria-controls=organizations>
+                    Organizations:
+                </button>
+            </h2>
+            <div id=organizations class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <ul class="list-group">
+                        @if (Model.FileMetadataDetails.Organizations != null && Model.FileMetadataDetails.Organizations.Count > 0)
+                        {
+                            @foreach (var item in Model.FileMetadataDetails.Organizations)
+                            {
+                                <li class="list-group-item">
+                                    @item
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mb-3 row">
+    
+    <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#location" aria-expanded="true" aria-controls=location>
+                    Locations:
+                </button>
+            </h2>
+            <div id=location class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <ul class="list-group">
+                        @if (Model.FileMetadataDetails.Locations != null && Model.FileMetadataDetails.Locations.Count > 0)
+                        {
+                            @foreach (var item in Model.FileMetadataDetails.Locations)
+                            {
+                                <li class="list-group-item">
+                                    @item
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="mb-3 row">
+
+    <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#keyphrases" aria-expanded="true" aria-controls=keyphrases>
+                    Keyphrases:
+                </button>
+            </h2>
+            <div id=keyphrases class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <ul class="list-group">
+                        @if (Model.FileMetadataDetails.Keyphrases != null && Model.FileMetadataDetails.Keyphrases.Count > 0)
+                        {
+                            @foreach (var item in Model.FileMetadataDetails.Keyphrases)
+                            {
+                                <li class="list-group-item">
+                                    @item
+                                </li>
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@{
+    if (Model.FileMetadataDetails.PiiEntities == null)
+        Model.FileMetadataDetails.PiiEntities = new List<Model.PiiEntities>();
+
+    var entities = Model.FileMetadataDetails.PiiEntities.GroupBy(x => x.Type);
+}
+
+@foreach (var item in entities)
+{
+    var items = item.ToList();
+
+    var collapseId = $"collapse-{Guid.NewGuid().ToString()}";
+    <div class="mb-3 row">
+        <div class="accordion" id="accordionExample">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="true" aria-controls=@collapseId>
+                        @item.Key:
+                    </button>
+                </h2>
+                <div id=@collapseId class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <ul class="list-group">
+                            @foreach (var entity in items)
+                            {
+                                <li class="list-group-item">
+                                    <p><strong>Text:</strong> @entity.Text</p>
+                                    <p><strong>SubType:</strong>  @entity.SubType</p>
+                                    <p><strong>Length:</strong>  @entity.Length</p>
+                                    <p><strong>Offset:</strong>  @entity.Offset</p>
+                                    <p><strong>Score:</strong>  @entity.Score</p>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<p></p>
+
+@if(@Model.ReadOnly == false)
+{
+    <form method="post" enctype="multipart/form-data">
+        <input type="submit" value="Save metada" />
+    </form>
+}
